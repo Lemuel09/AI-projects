@@ -94,9 +94,13 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="titlebar">
-    <h1>Takumi — Command Center</h1>
+<div class="titlebar">
+  <h1>Takumi — Command Center</h1>
+  <div style="opacity:.7;font-size:.75rem;margin-top:4px">
+    Demo data • Portfolio proof of concept
   </div>
+</div>
+
 
  <div class="card hero">
   <div class="hero-grid">
@@ -206,8 +210,10 @@
   /* ====== EDIT THESE THREE ====== */
   const WEB_APP_URL = 'https://script.google.com/a/macros/thestudio.com/s/AKfycbyWe3NhOAzFtBOT7IRC2l_eUdoJSZ-Rdc2KPmD2Zd5gUTjTKX0CqZ5y--KoBt3DnKLH/exec';
   const TOKEN       = 'QUINN_PORTAL_0c7a5f8f-1e9a-4b34-9b7d-3e6a9c21f4d8';
-  const INSIGHTS_URL= 'https://lookerstudio.google.com/reporting/YOUR_REPORT_ID';
+  
   /* ============================== */
+  // ===== DEMO MODE =====
+const DEMO_MODE = true; // ← set false when using real backend
 
   // Eye parallax
   (function(){
@@ -242,6 +248,81 @@
         document.body.appendChild(s);
       }));
   }
+  /* ================= DEMO DATA ================= */
+
+const DEMO_ALERTS = [
+  {
+    ticket: "TCK-48291",
+    title: "TCK-48291",
+    auditTime: "2026-01-28 14:32",
+    owner: "A. Mensah",
+    riskLevel: "High",
+    issues: "Agent disclosed partial test information before verification",
+    status: "Open",
+    link: "#"
+  },
+  {
+    ticket: "CALL-99314",
+    title: "CALL-99314",
+    auditTime: "2026-01-27 09:11",
+    owner: "L. Boateng",
+    riskLevel: "Medium",
+    issues: "Tone dropped during objection handling",
+    status: "Open",
+    link: "#"
+  },
+  {
+    ticket: "CHAT-77102",
+    title: "CHAT-77102",
+    auditTime: "2026-01-26 18:45",
+    owner: "K. Owusu",
+    riskLevel: "High",
+    issues: "Incorrect policy guidance provided",
+    status: "Open",
+    link: "#"
+  }
+];
+
+const DEMO_RECENT = [
+  {
+    time: "14:32",
+    ticket: "TCK-48291",
+    channel: "Ticket",
+    score: 62,
+    riskLevel: "High",
+    source: "AI",
+    issues: "Security verification failure",
+    link: "#"
+  },
+  {
+    time: "09:11",
+    ticket: "CALL-99314",
+    channel: "Call",
+    score: 78,
+    riskLevel: "Medium",
+    source: "Manual",
+    issues: "Empathy gap during escalation",
+    link: "#"
+  },
+  {
+    time: "18:45",
+    ticket: "CHAT-77102",
+    channel: "Chat",
+    score: 55,
+    riskLevel: "High",
+    source: "AI",
+    issues: "Incorrect information shared",
+    link: "#"
+  }
+];
+
+const DEMO_KPIS = {
+  highRisk: 2,
+  medOpen: 1,
+  resolved7d: 5,
+  avgScore7d: "71%"
+};
+
 
   // Renderers
   let ALL_ALERTS = [];
@@ -307,38 +388,70 @@
 }
 
 
-  async function loadData(){
-    try{
-      const data = await fetchFn('alerts');
-      const alerts = Array.isArray(data.alerts) ? data.alerts : [];
-      ALL_ALERTS = alerts;
-      renderQueue(alerts);
-      renderKpis(data.kpis || {});
-    }catch(e){ console.error(e); toast('⚠️ Could not load alerts/KPIs'); }
-    loadRecentAudits(); // do not await
+async function loadData(){
+  if (DEMO_MODE) {
+    ALL_ALERTS = DEMO_ALERTS;
+    renderQueue(DEMO_ALERTS);
+    renderKpis(DEMO_KPIS);
+    loadRecentAudits();
+    return;
   }
 
-  async function loadRecentAudits(){
-    try{
-      const d = await fetchFn('recent');
-      const rows = d?.rows || (Array.isArray(d) ? d : []);
-      const body = qs('#recentBody'); body.innerHTML = '';
-      rows.forEach(x=>{
-        const label = riskToLabel(x.risk, x.riskLevel);
-        const riskClass = (label==='High'?'red':(label==='Medium'?'yellow':'green'));
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${x.time||''}</td>
-          <td><a href="${x.link||'#'}" target="_blank" rel="noopener">${x.title||x.ticket||''}</a></td>
-          <td>${x.channel||''}</td>
-          <td>${(x.score===undefined||x.score==='')?'-':x.score}</td>
-          <td><span class="pill ${riskClass}">${label}</span></td>
-          <td>${x.source||''}</td>
-          <td title="${(x.issues||'')}">${(x.issues||'').toString().slice(0,80)}${(x.issues||'').toString().length>80?'…':''}</td>`;
-        body.appendChild(tr);
-      });
-    }catch(e){ console.error(e); /* silent */ }
+  try{
+    const data = await fetchFn('alerts');
+    const alerts = Array.isArray(data.alerts) ? data.alerts : [];
+    ALL_ALERTS = alerts;
+    renderQueue(alerts);
+    renderKpis(data.kpis || {});
+  }catch(e){
+    console.error(e);
+    toast('⚠️ Could not load alerts/KPIs');
   }
+}
+
+
+async function loadRecentAudits(){
+  if (DEMO_MODE) {
+    const body = qs('#recentBody');
+    body.innerHTML = '';
+    DEMO_RECENT.forEach(x=>{
+      const label = riskToLabel(null, x.riskLevel);
+      const riskClass = label==='High'?'red':(label==='Medium'?'yellow':'green');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${x.time}</td>
+        <td><a href="#">${x.ticket}</a></td>
+        <td>${x.channel}</td>
+        <td>${x.score}</td>
+        <td><span class="pill ${riskClass}">${label}</span></td>
+        <td>${x.source}</td>
+        <td>${x.issues}</td>`;
+      body.appendChild(tr);
+    });
+    return;
+  }
+
+  try{
+    const d = await fetchFn('recent');
+    const rows = d?.rows || (Array.isArray(d) ? d : []);
+    const body = qs('#recentBody');
+    body.innerHTML = '';
+    rows.forEach(x=>{
+      const label = riskToLabel(x.risk, x.riskLevel);
+      const riskClass = label==='High'?'red':(label==='Medium'?'yellow':'green');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${x.time||''}</td>
+        <td><a href="${x.link||'#'}">${x.title||x.ticket||''}</a></td>
+        <td>${x.channel||''}</td>
+        <td>${x.score||'-'}</td>
+        <td><span class="pill ${riskClass}">${label}</span></td>
+        <td>${x.source||''}</td>
+        <td>${x.issues||''}</td>`;
+      body.appendChild(tr);
+    });
+  }catch(e){}
+}
 
   // Quick search
   qs('#searchBox').addEventListener('input', (e)=>{
@@ -355,6 +468,17 @@
 
   // Resolve + Quick audit
   async function resolveTicket(ticket){
+    if (DEMO_MODE) {
+  ALL_ALERTS = ALL_ALERTS.filter(a => a.ticket !== ticket);
+  toast('✅ Resolved (demo)');
+  renderQueue(ALL_ALERTS);
+  renderKpis({
+    ...DEMO_KPIS,
+    highRisk: Math.max(0, DEMO_KPIS.highRisk - 1)
+  });
+  return;
+}
+
     try{
       const res = await fetch(WEB_APP_URL, {
         method:'POST', mode:'cors', headers:{'Content-Type':'application/json'},
