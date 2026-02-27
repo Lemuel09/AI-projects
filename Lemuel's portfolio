@@ -232,8 +232,19 @@ iframe{
   <h1>Systems Command Interface</h1>
   <div class="sub">AI • CX • ARCHITECTURE • INTELLIGENCE</div>
 </div>
-
 <div class="panel">
+
+<!-- ===== AI CORE VISUAL ===== -->
+<div style="display:flex;justify-content:center;margin-bottom:40px;">
+  <div style="
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(0,229,255,.6),#02060a 70%);
+    box-shadow:0 0 80px rgba(0,229,255,.5);
+    animation:pulse 3s infinite ease-in-out;">
+  </div>
+</div>
 
 <div class="health">
   <div class="ring">95%</div>
