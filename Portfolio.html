@@ -17,15 +17,23 @@
 
 html,body{
   margin:0;
-  background:radial-gradient(circle at 20% 0%, #111a24 0%, #0b1118 60%);
+  background:linear-gradient(135deg,#0b1118,#0f1622,#0b1118);
+  background-size:400% 400%;
+  animation:gradientShift 18s ease infinite;
   color:var(--text);
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
   scroll-behavior:smooth;
 }
 
+@keyframes gradientShift{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
 .wrap{
   max-width:1150px;
-  margin:100px auto;
+  margin:160px auto 100px;
   padding:0 24px;
 }
 
@@ -116,6 +124,31 @@ p{
   margin-bottom:16px;
 }
 
+button{
+  background:transparent;
+  border:1px solid var(--accent);
+  color:var(--accent);
+  padding:6px 12px;
+  border-radius:6px;
+  margin-bottom:10px;
+  cursor:pointer;
+  font-size:12px;
+  transition:.3s ease;
+}
+
+button:hover{
+  background:var(--accent);
+  color:#0b1118;
+}
+
+.case{
+  margin:15px 0;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.hidden{ display:none; }
+
 a{
   color:var(--accent);
   text-decoration:none;
@@ -155,25 +188,67 @@ a:hover::after{
   font-size:.9rem;
 }
 
-.footer{
-  margin-top:100px;
-  padding-top:40px;
-  border-top:1px solid var(--border);
-  font-size:.9rem;
-  color:var(--muted);
+.nav{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:rgba(11,17,24,.75);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  z-index:100;
 }
 
-/* Animated counters */
-.counter{
-  transition:all .6s ease;
+.nav-inner{
+  max-width:1150px;
+  margin:auto;
+  padding:18px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-</style>
+
+.logo{
+  font-weight:600;
+  letter-spacing:1px;
+}
+
+.nav-links{
+  display:flex;
+  gap:28px;
+  font-size:14px;
+}
+
+.cursor-glow{
+  position:fixed;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(0,200,255,.08), transparent 70%);
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  z-index:0;
+}
+  </style>
 </head>
 
 <body>
 
+<!-- Navigation -->
+<div class="nav">
+  <div class="nav-inner">
+    <div class="logo">MLN</div>
+    <div class="nav-links">
+      <a href="#systems">Systems</a>
+      <a href="#impact">Impact</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#philosophy">Philosophy</a>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
 
+<!-- HERO -->
 <div class="section hero">
   <h1>Michael Lemuel Nortey</h1>
   <p>
@@ -182,43 +257,98 @@ a:hover::after{
   </p>
 </div>
 
-<div class="section">
+<!-- SYSTEMS -->
+<div class="section" id="systems">
   <h2>Selected Systems</h2>
 
   <div class="grid">
 
+    <!-- KAIZEN -->
     <div class="card">
       <div class="meta">AI Risk & Quality</div>
       <h3>Kaizen Intelligence Framework</h3>
-      <p>Real-time red-flag detection and structured quality governance across customer operations.</p>
+      <p>Real-time red-flag detection and structured quality governance.</p>
+
+      <button onclick="toggleCase(this)">View Architecture</button>
+
+      <div class="case hidden">
+        <ul>
+          <li>Automated QA scoring model</li>
+          <li>Risk classification engine</li>
+          <li>Multi-channel ingestion</li>
+          <li>Executive KPI dashboard</li>
+        </ul>
+      </div>
+
       <a href="https://lemuel09.github.io/AI-projects/">View System →</a>
     </div>
 
+    <!-- LEGAL ENGINE -->
     <div class="card">
       <div class="meta">Legal Technology</div>
       <h3>Litigation Intelligence Engine</h3>
       <p>Structured case modelling and litigation evaluation framework.</p>
-      <a href="https://script.google.com/macros/s/AKfycbwJxbFjYy7HywDl3WG3BmbkK-0gEuTPj09ZLOV0sVOOHeAv9_d-uMdUmkx0JSUUBlk/exec">View System →</a>
+
+      <button onclick="toggleCase(this)">View Architecture</button>
+
+      <div class="case hidden">
+        <ul>
+          <li>Issue modelling structure</li>
+          <li>Timeline extraction logic</li>
+          <li>Contradiction detection layer</li>
+          <li>Memo automation tooling</li>
+        </ul>
+      </div>
+
+      <a href="https://script.google.com/macros/s/AKfycbwJxbFjYy7HywDl3WG3BmbkK-0gEuTPj09ZLOV0sVOOHeAv9_d-uMdUmkx0JSUUBlk/exec">
+        View System →
+      </a>
     </div>
 
+    <!-- TELEPHONY -->
     <div class="card">
       <div class="meta">Enterprise Infrastructure</div>
       <h3>Telephony Architecture</h3>
       <p>Multi-country VOIP deployment improving CSAT and governance.</p>
+
+      <button onclick="toggleCase(this)">View Architecture</button>
+
+      <div class="case hidden">
+        <ul>
+          <li>Regional VOIP standardisation</li>
+          <li>Centralised reporting layer</li>
+          <li>Call quality monitoring</li>
+          <li>Operational governance controls</li>
+        </ul>
+      </div>
+
       <a href="#">View Case Study →</a>
     </div>
 
+    <!-- VOC -->
     <div class="card">
       <div class="meta">Customer Intelligence</div>
       <h3>360° Voice of Customer</h3>
       <p>AI-powered sentiment extraction across structured and unstructured feedback.</p>
+
+      <button onclick="toggleCase(this)">View Architecture</button>
+
+      <div class="case hidden">
+        <ul>
+          <li>Feedback ingestion pipelines</li>
+          <li>Theme clustering logic</li>
+          <li>Sentiment modelling</li>
+          <li>Weekly executive insights</li>
+        </ul>
+      </div>
+
       <a href="#">View System →</a>
     </div>
 
   </div>
 </div>
-
-<div class="section">
+<!-- IMPACT -->
+<div class="section" id="impact">
   <h2>Measured Impact</h2>
 
   <div class="kpis">
@@ -241,7 +371,39 @@ a:hover::after{
   </div>
 </div>
 
-<div class="section">
+<!-- ARCHITECTURE STACK -->
+<div class="section" id="architecture">
+  <h2>Architecture Stack</h2>
+
+  <div class="grid">
+    <div class="card">
+      <div class="meta">AI Layer</div>
+      <h3>Intelligence & Modelling</h3>
+      <p>LLM integration, rule-based classification, structured risk scoring models.</p>
+    </div>
+
+    <div class="card">
+      <div class="meta">Data Layer</div>
+      <h3>Structured Ingestion</h3>
+      <p>CRM pipelines, QA logs, telephony streams, feedback repositories.</p>
+    </div>
+
+    <div class="card">
+      <div class="meta">Execution Layer</div>
+      <h3>Automation & Insight</h3>
+      <p>Dashboards, escalation triggers, reporting automation, performance signals.</p>
+    </div>
+
+    <div class="card">
+      <div class="meta">Governance Layer</div>
+      <h3>Oversight & Controls</h3>
+      <p>Audit trails, compliance monitoring, quality assurance frameworks.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PHILOSOPHY -->
+<div class="section" id="philosophy">
   <h2>Operating Philosophy</h2>
   <p>
     My work is grounded in structured experimentation, governance-first AI,
@@ -250,56 +412,92 @@ a:hover::after{
   </p>
 </div>
 
-<div class="footer">
-  Connect:
-  <a href="https://linkedin.com" target="_blank">LinkedIn</a> •
-  <a href="https://github.com" target="_blank">GitHub</a>
+<!-- FOOTER -->
+<div class="section">
+  <div class="footer">
+    Connect:
+    <a href="https://linkedin.com" target="_blank">LinkedIn</a> •
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </div>
 </div>
 
-</div>
+</div> <!-- closes wrap -->
+  <!-- Cursor Glow Element -->
+<div class="cursor-glow"></div>
 
 <script>
-/* Fade-in on scroll */
+
+/* Scroll Reveal Animation */
 const sections = document.querySelectorAll('.section');
+
 const observer = new IntersectionObserver(entries=>{
   entries.forEach(entry=>{
     if(entry.isIntersecting){
       entry.target.classList.add('visible');
     }
   });
+},{
+  threshold:0.15
 });
-sections.forEach(section=>observer.observe(section));
 
-/* Counter animation */
+sections.forEach(section=>{
+  observer.observe(section);
+});
+
+/* KPI Counter Animation */
 const counters = document.querySelectorAll('.counter');
-const speed = 200;
 
-const runCounters = ()=>{
+function animateCounters(){
   counters.forEach(counter=>{
-    const update = ()=>{
-      const target = +counter.getAttribute('data-target');
-      const count = +counter.innerText;
-      const inc = target / speed;
+    const target = +counter.getAttribute('data-target');
+    const speed = 200;
+    let count = 0;
 
+    const update = ()=>{
+      const increment = target / speed;
       if(count < target){
-        counter.innerText = Math.ceil(count + inc);
-        setTimeout(update, 10);
+        count += increment;
+        counter.innerText = Math.ceil(count);
+        requestAnimationFrame(update);
       } else {
         counter.innerText = target;
       }
     };
     update();
   });
-};
+}
 
-const kpiSection = document.querySelector('.kpis');
+const kpiSection = document.querySelector('#impact');
+
 const kpiObserver = new IntersectionObserver(entries=>{
   if(entries[0].isIntersecting){
-    runCounters();
+    animateCounters();
     kpiObserver.disconnect();
   }
+},{
+  threshold:0.4
 });
+
 kpiObserver.observe(kpiSection);
+
+/* Expand / Collapse Case Architecture */
+function toggleCase(button){
+  const caseBlock = button.nextElementSibling;
+  caseBlock.classList.toggle('hidden');
+
+  button.innerText = caseBlock.classList.contains('hidden')
+    ? "View Architecture"
+    : "Hide Architecture";
+}
+
+/* Subtle Cursor Glow */
+const glow = document.querySelector('.cursor-glow');
+
+document.addEventListener('mousemove', e=>{
+  glow.style.left = e.clientX + 'px';
+  glow.style.top = e.clientY + 'px';
+});
+
 </script>
 
 </body>
