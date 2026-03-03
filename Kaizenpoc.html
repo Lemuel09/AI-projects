@@ -399,11 +399,29 @@ async function loadData(){
   }
 
   try{
-    const data = await fetchFn('alerts');
-    const alerts = Array.isArray(data.alerts) ? data.alerts : [];
-    ALL_ALERTS = alerts;
-    renderQueue(alerts);
-    renderKpis(data.kpis || {});
+ const data = await fetchFn('alerts');
+
+const alerts = Array.isArray(data.rows)
+  ? data.rows
+  : (Array.isArray(data.alerts) ? data.alerts : []);
+
+ALL_ALERTS = alerts;
+
+renderQueue(alerts);
+
+// Generate basic KPIs from rows if backend doesn't send them
+const high = alerts.filter(a => (a.riskLevel || '').toLowerCase() === 'high').length;
+const med  = alerts.filter(a => (a.riskLevel || '').toLowerCase() === 'medium').length;
+const avg  = alerts.length
+  ? Math.round(alerts.reduce((sum,a)=>sum+(Number(a.score)||0),0)/alerts.length)
+  : 0;
+
+renderKpis({
+  highRisk: high,
+  medOpen: med,
+  resolved7d: 0,
+  avgScore7d: avg ? avg + '%' : '–'
+});
   }catch(e){
     console.error(e);
     toast('⚠️ Could not load alerts/KPIs');
