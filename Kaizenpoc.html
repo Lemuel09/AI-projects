@@ -555,8 +555,10 @@ async function loadRecentAudits(){
   document.getElementById('btnRandomFill').onclick     = randomFill;
 
 
-  loadData();
-  setInterval(loadRecentAudits, 10000);
+loadData();
+loadRecentAudits();          // ← ADD THIS
+setInterval(loadRecentAudits, 10000);
+  
 </script>
 </body>
 </html>
