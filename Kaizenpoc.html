@@ -345,89 +345,77 @@ const DEMO_KPIS = {
     qs('#kpiScore').textContent= k.avgScore7d ?? k.avgScore ?? '–';
   }
 
-  function renderQueue(rows){
+ function renderQueue(rows){
   const body = qs('#queueBody'); 
   body.innerHTML = '';
-  qs('#queueCount').textContent = rows.length;
 
-  // 🔽 Sort newest to oldest by auditTime (or fallback to time)
-  rows.sort((a,b)=>{
-    const da = new Date(a.auditTime || a.time || 0);
-    const db = new Date(b.auditTime || b.time || 0);
-    return db - da;
+  // Only show High risk in queue
+  const highRiskRows = rows.filter(r => 
+    (r.riskLevel || '').toLowerCase() === 'high'
+  );
+
+  qs('#queueCount').textContent = highRiskRows.length;
+
+  // Sort newest first
+  highRiskRows.sort((a,b)=>{
+    return new Date(b.time) - new Date(a.time);
   });
 
-  for(const r of rows){
-    const riskLabel = riskToLabel(r.risk, r.riskLevel);
-    const riskClass = riskLabel==='High' ? 'red' : (riskLabel==='Medium' ? 'yellow' : 'green');
-    const status = r.status || 'Open';
-    const ticketText = r.title || r.ticket || '';
+  for(const r of highRiskRows){
+    const riskClass = 'red';
+    const ticketText = r.ticket || '';
     const link = r.link || '#';
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><a href="${link}" target="_blank" rel="noopener">${ticketText}</a></td>
-      <td>${r.auditTime || r.time || '-'}</td>
-      <td>${r.owner || ''}</td>
-      <td><span class="pill ${riskClass}">${riskLabel}</span></td>
-      <td title="${(r.issues||'')}">${(r.issues||'').toString().slice(0,80)}${(r.issues||'').toString().length>80?'…':''}</td>
-      <td>${status}</td>
+      <td><a href="${link}" target="_blank">${ticketText}</a></td>
+      <td>${new Date(r.time).toLocaleString()}</td>
+      <td>${r.source || 'AI'}</td>
+      <td><span class="pill ${riskClass}">${r.riskLevel}</span></td>
+      <td title="${r.issues || ''}">
+        ${(r.issues || '').slice(0,80)}
+        ${(r.issues || '').length > 80 ? '…' : ''}
+      </td>
+      <td>Open</td>
       <td>
-        <button class="btn" data-ticket="${ticketText}">Resolve</button>
+        <button class="btn" onclick="alert('Demo Resolve')">Resolve</button>
         <button class="btn" onclick="window.open('${link}','_blank')">Open</button>
       </td>`;
     body.appendChild(tr);
   }
-
-  // keep resolve button working
-  body.querySelectorAll('button.btn').forEach(btn=>{
-    if(btn.textContent.trim()!=='Resolve') return;
-    btn.addEventListener('click', async (e)=>{ 
-      await resolveTicket(e.currentTarget.getAttribute('data-ticket')); 
-    });
-  });
 }
 
 
 async function loadData(){
-  if (DEMO_MODE) {
-    ALL_ALERTS = DEMO_ALERTS;
-    renderQueue(DEMO_ALERTS);
-    renderKpis(DEMO_KPIS);
-    loadRecentAudits();
-    return;
-  }
+  if (DEMO_MODE) return;
 
   try{
- const data = await fetchFn('alerts');
+    const data = await fetchFn('alerts');
+    const rows = data?.rows || [];
 
-const alerts = Array.isArray(data.rows)
-  ? data.rows
-  : (Array.isArray(data.alerts) ? data.alerts : []);
+    ALL_ALERTS = rows;
 
-ALL_ALERTS = alerts;
+    renderQueue(rows);
 
-renderQueue(alerts);
+    // KPI calculations from real data
+    const high = rows.filter(r => r.riskLevel === 'High').length;
+    const med  = rows.filter(r => r.riskLevel === 'Medium').length;
+    const avg  = rows.length
+      ? Math.round(rows.reduce((sum,r)=>sum+(Number(r.score)||0),0)/rows.length)
+      : 0;
 
-// Generate basic KPIs from rows if backend doesn't send them
-const high = alerts.filter(a => (a.riskLevel || '').toLowerCase() === 'high').length;
-const med  = alerts.filter(a => (a.riskLevel || '').toLowerCase() === 'medium').length;
-const avg  = alerts.length
-  ? Math.round(alerts.reduce((sum,a)=>sum+(Number(a.score)||0),0)/alerts.length)
-  : 0;
+    renderKpis({
+      highRisk: high,
+      medOpen: med,
+      resolved7d: 0,
+      avgScore7d: avg + '%'
+    });
 
-renderKpis({
-  highRisk: high,
-  medOpen: med,
-  resolved7d: 0,
-  avgScore7d: avg ? avg + '%' : '–'
-});
   }catch(e){
     console.error(e);
-    toast('⚠️ Could not load alerts/KPIs');
+    toast('⚠️ Could not load alerts');
   }
 }
-
 
 async function loadRecentAudits(){
   if (DEMO_MODE) {
