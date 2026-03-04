@@ -547,12 +547,17 @@ async function loadRecentAudits(){
     }catch(e){ openAuditModal(); toast('No candidates found — enter an ID'); }
   }
 
-  document.getElementById('btnOpenQuickAudit').onclick = ()=> openAuditModal();
-  document.getElementById('btnRandomAudit').onclick    = ()=> randomFill();
-  document.getElementById('btnInsights').onclick       = ()=> window.open(INSIGHTS_URL,'_blank');
-  document.getElementById('btnRefresh').onclick        = loadData;
-  document.getElementById('btnSaveAudit').onclick      = saveAudit;
-  document.getElementById('btnRandomFill').onclick     = randomFill;
+function safeBind(id, fn){
+  const el = document.getElementById(id);
+  if (el) el.onclick = fn;
+}
+
+safeBind('btnOpenQuickAudit', () => openAuditModal());
+safeBind('btnRandomAudit', () => randomFill());
+safeBind('btnInsights', () => window.open(INSIGHTS_URL,'_blank'));
+safeBind('btnRefresh', loadData);
+safeBind('btnSaveAudit', saveAudit);
+safeBind('btnRandomFill', randomFill);
 
 
 loadData();
