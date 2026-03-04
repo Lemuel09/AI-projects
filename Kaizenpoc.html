@@ -378,7 +378,7 @@ const DEMO_KPIS = {
       </td>
       <td>Open</td>
       <td>
-        <button class="btn" onclick="alert('Demo Resolve')">Resolve</button>
+        <button class="btn" onclick="resolveTicket('${ticketText}')">Resolve</button>
         <button class="btn" onclick="window.open('${link}','_blank')">Open</button>
       </td>`;
     body.appendChild(tr);
@@ -474,32 +474,57 @@ async function loadRecentAudits(){
   });
 
   // Resolve + Quick audit
-  async function resolveTicket(ticket){
-    if (DEMO_MODE) {
-  ALL_ALERTS = ALL_ALERTS.filter(a => a.ticket !== ticket);
-  toast('✅ Resolved (demo)');
-  renderQueue(ALL_ALERTS);
-  renderKpis({
-    ...DEMO_KPIS,
-    highRisk: Math.max(0, DEMO_KPIS.highRisk - 1)
-  });
-  return;
-}
+  async function resolveTicket(ticket) {
 
-    try{
-      const res = await fetch(WEB_APP_URL, {
-        method:'POST', mode:'cors', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({action:'resolve', ticket, by:'manager@company.com', token:TOKEN})
-      }).then(x=>x.json()).catch(()=>null);
+  // ===== DEMO MODE =====
+  if (DEMO_MODE) {
+    ALL_ALERTS = ALL_ALERTS.filter(a => a.ticket !== ticket);
 
-      if(res && res.ok){ toast('✅ Resolved'); loadData(); return; }
+    toast('✅ Resolved (demo)');
+    renderQueue(ALL_ALERTS);
 
-      // fallback via JSONP
-      const d = await fetchFn('resolve', {ticket, by:'manager@company.com', token:TOKEN});
-      if(d && d.ok){ toast('✅ Resolved'); loadData(); } else { toast('⚠️ Could not resolve'); }
-    }catch(_){ toast('⚠️ Resolve failed'); }
+    const high = ALL_ALERTS.filter(a => a.riskLevel === "High").length;
+    const med  = ALL_ALERTS.filter(a => a.riskLevel === "Medium").length;
+    const avg  = ALL_ALERTS.length
+      ? Math.round(ALL_ALERTS.reduce((sum,r)=>sum+(Number(r.score)||0),0)/ALL_ALERTS.length)
+      : 0;
+
+    renderKpis({
+      highRisk: high,
+      medOpen: med,
+      resolved7d: 0,
+      avgScore7d: avg + '%'
+    });
+
+    return;
   }
 
+  // ===== REAL BACKEND MODE =====
+  try {
+
+    const response = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'resolve',
+        ticket: ticket
+      })
+    });
+
+    const data = await response.json();
+
+    if (data && data.ok) {
+      toast('✅ Ticket resolved');
+      loadData(); // reload dashboard
+    } else {
+      toast('⚠️ Could not resolve ticket');
+    }
+
+  } catch (error) {
+    console.error(error);
+    toast('⚠️ Resolve failed');
+  }
+}
   const backdrop = qs('#auditBackdrop');
   const inputs = {
     ticket: qs('#qa_ticket'), channel: qs('#qa_channel'), owner: qs('#qa_owner'),
