@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters Across Time</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400&family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    background: #141418;
+    color: #f6f2ec;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: #141418;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+    text-align: center;
+    padding: 20px;
+}
+
+.overlay h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+}
+
+.overlay input {
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 8px;
+    border: none;
+    width: 200px;
+    text-align: center;
+}
+
+.overlay button {
+    background: transparent;
+    border: 1px solid #8c74b8;
+    color: #8c74b8;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 1rem;
+    margin-top: 15px;
+}
+
+section {
+    padding: 60px 8%;
+}
+
+.hero {
+    text-align: center;
+    padding-top: 120px;
+}
+
+.hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+}
+
+.hero p {
+    color: #cbb6e3;
+    font-weight: 300;
+}
+
+.letter {
+    margin-top: 70px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1s ease;
+}
+
+.letter.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.letter h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    color: #cbb6e3;
+}
+
+.handwritten {
+    font-family: 'Great Vibes', cursive;
+    font-size: 1.6rem;
+    line-height: 1.6;
+    margin-top: 20px;
+}
+
+.letter img {
+    width: 100%;
+    border-radius: 14px;
+    margin-top: 25px;
+}
+
+.caption {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: 10px;
+}
+
+.locked {
+    filter: blur(5px);
+}
+
+.unlock-btn {
+    margin-top: 15px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid #8c74b8;
+    background: transparent;
+    color: #8c74b8;
+}
+
+.footer {
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.5;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="overlay" id="passwordOverlay">
+    <h1>For Maxine</h1>
+    <p>Enter the word that means everything.</p>
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="checkPassword()">Enter</button>
+</div>
+
+<div class="overlay" id="startOverlay" style="display:none;">
+    <h1>Letters Across Time</h1>
+    <button onclick="startExperience()">Tap to Begin</button>
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="music/nothing.mp3" type="audio/mpeg">
+</audio>
+
+<section class="hero">
+    <h1>Letters Across Time</h1>
+    <p>In every season, I choose you.</p>
+</section>
+
+<section>
+
+<div class="letter fade">
+    <h2>Open When You Doubt Us</h2>
+    <div class="handwritten">Write your message here.</div>
+    <img src="images/first.jpg">
+    <div class="caption">The moment everything shifted.</div>
+</div>
+
+<div class="letter fade">
+    <h2>Open When You Succeed</h2>
+    <div class="handwritten">Write your message here.</div>
+    <img src="images/success.jpg">
+    <div class="caption">You always had it in you.</div>
+</div>
+
+<div class="letter fade">
+    <h2>Open When You’re Tired</h2>
+    <div class="handwritten">Write your message here.</div>
+    <img src="images/tired.jpg">
+    <div class="caption">Even here, we were okay.</div>
+</div>
+
+<div class="letter fade">
+    <h2>Open On Your Next Big Achievement</h2>
+    <div class="handwritten">Write your message here.</div>
+    <img src="images/achievement.jpg">
+    <div class="caption">The life we are building.</div>
+</div>
+
+<div class="letter fade" id="futureLetter">
+    <h2>Open in 2035</h2>
+    <div class="handwritten locked" id="futureText">
+        This letter waits for the future version of us.
+    </div>
+    <button class="unlock-btn" onclick="unlockFuture()">Unlock</button>
+    <img src="images/future.jpg">
+    <div class="caption">Still choosing each other.</div>
+</div>
+
+</section>
+
+<div class="footer">
+    Built with intention.
+</div>
+
+<script>
+const correctPassword = "forever"; // change this
+const futurePass = "2035";
+
+function checkPassword() {
+    if(document.getElementById("passwordInput").value === correctPassword){
+        document.getElementById("passwordOverlay").style.display="none";
+        document.getElementById("startOverlay").style.display="flex";
+    }
+}
+
+function startExperience() {
+    document.getElementById("bgMusic").play();
+    document.getElementById("startOverlay").style.display="none";
+}
+
+function unlockFuture(){
+    let attempt = prompt("Enter the future key:");
+    if(attempt === futurePass){
+        document.getElementById("futureText").classList.remove("locked");
+    }
+}
+
+// Scroll animation
+const letters = document.querySelectorAll('.letter');
+window.addEventListener('scroll', () => {
+    letters.forEach(letter => {
+        const rect = letter.getBoundingClientRect();
+        if(rect.top < window.innerHeight - 100){
+            letter.classList.add('visible');
+        }
+    });
+});
+
+// Starfield
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let stars = [];
+for(let i=0;i<100;i++){
+    stars.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*1.5
+    });
+}
+
+function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#8c74b8";
+    stars.forEach(star=>{
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI*2);
+        ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+}
+drawStars();
+</script>
+
+</body>
+</html>
